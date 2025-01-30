@@ -1,19 +1,17 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import classnames from "classnames";
 
 import DrySound from "../assets/sounds/dry.wav";
 import HitSound from "../assets/sounds/hit.wav";
 import AppearSound from "../assets/sounds/appear.wav";
 import HorrorSound from "../assets/sounds/horror.wav";
 
-import telegramAudio from "../assets/telegram/audio/2025-01-29 17.44.52.ogg";
-import telegramVideo from "../assets/telegram/video/2025-01-29 17.44.03.mp4";
-
 const padData = [
   {
     dataKey: "65",
     keyName: "A",
     soundName: "hit",
-    soundUrl: `${telegramVideo}`,
+    soundUrl: `${HitSound}`,
   },
   {
     dataKey: "83",
@@ -36,6 +34,8 @@ const padData = [
 ];
 
 export const DrumPad = () => {
+  const [isActive, setIsActive] = useState(false);
+
   const playSound = (soundUrl) => {
     const audio = new Audio(soundUrl);
     audio.play();
@@ -45,8 +45,11 @@ export const DrumPad = () => {
     padData.forEach((item) => {
       if (item.dataKey === String(e.keyCode)) {
         playSound(item.soundUrl);
+        setIsActive(item);
       }
     });
+
+    setTimeout(() => setIsActive(false), 700);
   };
 
   useEffect(() => {
@@ -58,17 +61,25 @@ export const DrumPad = () => {
   return (
     <ul className="flex items-center justify-center gap-4">
       {padData.map((item) => (
-        <PadButton key={item.dataKey} item={item} playSound={playSound} />
+        <PadButton
+          key={item.dataKey}
+          item={item}
+          playSound={playSound}
+          isActive={isActive}
+        />
       ))}
     </ul>
   );
 };
 
-const PadButton = ({ item, playSound }) => (
+const PadButton = ({ item, playSound, isActive }) => (
   <li
     data-key={item.dataKey}
     onClick={() => playSound(item.soundUrl)}
-    className="w-[80px] h-[80px] flex flex-col items-center justify-center gap-2 border border-solid border-black rounded-lg cursor-pointer hover:scale-125"
+    className={classnames(
+      "w-[80px] h-[80px] flex flex-col items-center justify-center gap-2 border border-solid border-black rounded-lg cursor-pointer active:scale-125 transition-all duration-300 active:bg-red-500",
+      { "scale-125 bg-red-500": isActive && isActive.dataKey === item.dataKey }
+    )}
   >
     <kbd className="text-2xl">{item.keyName}</kbd>
 
